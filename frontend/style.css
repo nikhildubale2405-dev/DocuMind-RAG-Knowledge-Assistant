@@ -1,0 +1,269 @@
+:root {
+  color-scheme: light;
+  --bg: #eef2f7;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #647084;
+  --line: #d8dee8;
+  --primary: #1f6feb;
+  --primary-dark: #1757ba;
+  --success: #177245;
+  --danger: #b42318;
+  --source-bg: #f7f9fc;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 32px auto;
+}
+
+.panel,
+.answer-card,
+.sources-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 18px 45px rgba(23, 32, 51, 0.08);
+}
+
+.panel {
+  padding: 28px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 22px;
+}
+
+.section-block {
+  min-width: 0;
+}
+
+.file-drop {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  width: 100%;
+  margin: 16px 0 12px;
+  padding: 0 14px;
+  border: 1px dashed #9aabc2;
+  border-radius: 8px;
+  background: #fbfcfe;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.file-drop input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+
+.query-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+input[type="text"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+}
+
+button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.message {
+  min-height: 22px;
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+}
+
+.message.success {
+  color: var(--success);
+}
+
+.message.error {
+  color: var(--danger);
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  margin-top: 18px;
+  border: 3px solid #d7e3f8;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.hidden {
+  display: none;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 22px;
+  margin-top: 22px;
+}
+
+.answer-card,
+.sources-card {
+  min-height: 220px;
+  padding: 24px;
+}
+
+.answer-text {
+  margin-bottom: 0;
+  color: #263348;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.sources-list {
+  display: grid;
+  gap: 12px;
+}
+
+.source-item {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--source-bg);
+}
+
+.source-title {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.source-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 780px) {
+  .app-shell {
+    width: min(100% - 20px, 1120px);
+    margin: 16px auto;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .brand-row,
+  .workspace,
+  .results,
+  .query-row {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-row {
+    display: grid;
+  }
+
+  button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocuMind</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel">
+        <div class="brand-row">
+          <div>
+            <p class="eyebrow">AI document Q&A</p>
+            <h1>DocuMind</h1>
+          </div>
+          <span class="status-pill" id="apiStatus">Ready</span>
+        </div>
+
+        <div class="workspace">
+          <section class="section-block">
+            <h2>Upload PDF</h2>
+            <p class="muted">Add a PDF, then ask questions grounded in its pages.</p>
+            <label class="file-drop" for="pdfFile">
+              <input id="pdfFile" type="file" accept="application/pdf" />
+              <span id="fileName">Choose a PDF file</span>
+            </label>
+            <button id="uploadBtn" type="button">Upload</button>
+            <p class="message" id="uploadMessage"></p>
+          </section>
+
+          <section class="section-block">
+            <h2>Ask Question</h2>
+            <div class="query-row">
+              <input
+                id="queryInput"
+                type="text"
+                placeholder="Ask something from the uploaded document..."
+              />
+              <button id="askBtn" type="button">Ask</button>
+            </div>
+            <div class="spinner hidden" id="spinner"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="results">
+        <article class="answer-card">
+          <h2>Answer</h2>
+          <p id="answerText" class="answer-text">Upload a PDF and ask a question to begin.</p>
+        </article>
+
+        <article class="sources-card">
+          <h2>Sources</h2>
+          <div id="sourcesList" class="sources-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
