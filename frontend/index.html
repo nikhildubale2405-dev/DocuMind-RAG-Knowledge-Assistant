@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DocuMind</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
     <main class="app-shell">
@@ -21,10 +21,12 @@
           <section class="section-block">
             <h2>Upload PDF</h2>
             <p class="muted">Add a PDF, then ask questions grounded in its pages.</p>
+
             <label class="file-drop" for="pdfFile">
               <input id="pdfFile" type="file" accept="application/pdf" />
               <span id="fileName">Choose a PDF file</span>
             </label>
+
             <button id="uploadBtn" type="button">Upload</button>
             <p class="message" id="uploadMessage"></p>
           </section>
@@ -57,6 +59,6 @@
       </section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="/static/script.js"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "";
 
 const pdfFile = document.getElementById("pdfFile");
 const fileName = document.getElementById("fileName");
@@ -32,6 +32,7 @@ function renderSources(sources) {
   }
 
   const fragment = document.createDocumentFragment();
+
   sources.forEach((source) => {
     const item = document.createElement("div");
     item.className = "source-item";
@@ -42,7 +43,7 @@ function renderSources(sources) {
 
     const text = document.createElement("p");
     text.className = "source-text";
-    text.textContent = source.text;
+    text.textContent = source.text || "";
 
     item.append(title, text);
     fragment.appendChild(item);
@@ -58,6 +59,7 @@ pdfFile.addEventListener("change", () => {
 
 uploadBtn.addEventListener("click", async () => {
   const file = pdfFile.files[0];
+
   if (!file) {
     setMessage(uploadMessage, "Please choose a PDF first.", "error");
     return;
@@ -74,6 +76,7 @@ uploadBtn.addEventListener("click", async () => {
       method: "POST",
       body: formData,
     });
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -90,6 +93,7 @@ uploadBtn.addEventListener("click", async () => {
 
 askBtn.addEventListener("click", async () => {
   const query = queryInput.value.trim();
+
   if (!query) {
     answerText.textContent = "Enter a question first.";
     renderSources([]);
@@ -101,7 +105,7 @@ askBtn.addEventListener("click", async () => {
   renderSources([]);
 
   try {
-    const url = new URL(`${BASE_URL}/query/`);
+    const url = new URL(`${window.location.origin}/query/`);
     url.searchParams.set("query", query);
 
     const response = await fetch(url, { method: "POST" });
