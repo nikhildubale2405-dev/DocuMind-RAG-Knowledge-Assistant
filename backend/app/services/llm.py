@@ -1,3 +1,6 @@
+from functools import lru_cache
+import os
+
 from groq import Groq
 
 from app.utils.config import settings
@@ -13,20 +16,40 @@ Do not use outside knowledge."""
 def build_context(chunks: list[dict]) -> str:
     context_parts = []
     for index, chunk in enumerate(chunks, start=1):
+        source = chunk.get("source", "Unknown")
+        page = chunk.get("page", "Unknown")
+        text = chunk.get("text", "")
         context_parts.append(
-            f"[Source {index}] File: {chunk['source']} | Page: {chunk['page']}\n{chunk['text']}"
+            f"[Source {index}] File: {source} | Page: {page}\n{text}"
         )
     return "\n\n".join(context_parts)
+
+
+def _get_api_key() -> str | None:
+    # Prefer your settings object, but fall back to environment names
+    # so the app still works while you fix the secret name.
+    return (
+        getattr(settings, "groq_api_key", None)
+        or os.getenv("GROQ_API_KEY")
+        or os.getenv("GROQAPIKEY")
+    )
+
+
+@lru_cache(maxsize=1)
+def _get_client() -> Groq:
+    api_key = _get_api_key()
+    if not api_key:
+        raise ValueError(
+            "Groq API key is not configured. Add the Hugging Face secret as GROQ_API_KEY."
+        )
+    return Groq(api_key=api_key)
 
 
 def generate_answer(query: str, chunks: list[dict]) -> str:
     if not chunks:
         return "I don't know"
 
-    if not settings.GROQAPIKEY or settings.GROQAPIKEY == "your_api_key_here":
-        return "Groq API key is not configured. Set GROQ_API_KEY in backend/.env."
-
-    client = Groq(api_key=settings.GROQAPIKEY)
+    client = _get_client()
     context = build_context(chunks)
 
     prompt = f"""Context:
@@ -39,7 +62,7 @@ Answer:"""
 
     try:
         response = client.chat.completions.create(
-            model=settings.groq_model,
+            model=getattr(settings, "groq_model", "llama3-8b-8192"),
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
