@@ -26,13 +26,11 @@ def build_context(chunks: list[dict]) -> str:
 
 
 def _get_api_key() -> str | None:
-    # Prefer your settings object, but fall back to environment names
-    # so the app still works while you fix the secret name.
-    return (
-        getattr(settings, "groq_api_key", None)
-        or os.getenv("GROQ_API_KEY")
-        or os.getenv("GROQAPIKEY")
-    )
+    # Hugging Face Secrets / local env fallback
+    api_key = os.getenv("GROQAPIKEY") or os.getenv("GROQ_API_KEY")
+    if api_key:
+        api_key = api_key.strip()
+    return api_key or None
 
 
 @lru_cache(maxsize=1)
@@ -40,7 +38,7 @@ def _get_client() -> Groq:
     api_key = _get_api_key()
     if not api_key:
         raise ValueError(
-            "Groq API key is not configured. Add the Hugging Face secret as GROQ_API_KEY."
+            "Groq API key is not configured. Add the Hugging Face secret as GROQAPIKEY or GROQ_API_KEY."
         )
     return Groq(api_key=api_key)
 
@@ -49,7 +47,6 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
     if not chunks:
         return "I don't know"
 
-    client = _get_client()
     context = build_context(chunks)
 
     prompt = f"""Context:
@@ -61,6 +58,7 @@ Question:
 Answer:"""
 
     try:
+        client = _get_client()
         response = client.chat.completions.create(
             model=getattr(settings, "groq_model", "llama3-8b-8192"),
             messages=[
