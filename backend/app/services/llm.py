@@ -23,10 +23,10 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
     if not chunks:
         return "I don't know"
 
-    if not settings.groq_api_key or settings.groq_api_key == "your_api_key_here":
+    if not settings.GROQAPIKEY or settings.GROQAPIKEY == "your_api_key_here":
         return "Groq API key is not configured. Set GROQ_API_KEY in backend/.env."
 
-    client = Groq(api_key=settings.groq_api_key)
+    client = Groq(api_key=settings.GROQAPIKEY)
     context = build_context(chunks)
 
     prompt = f"""Context:
