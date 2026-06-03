@@ -1,3 +1,5 @@
+from time import perf_counter
+
 from fastapi import APIRouter, HTTPException, Query
 from app.services.llm import generate_answer
 from app.services.retriever import retrieve
@@ -6,6 +8,7 @@ router = APIRouter(prefix="/query", tags=["query"])
 
 @router.post("/")
 async def query_documents(query: str = Query(..., min_length=1)):
+    start_time = perf_counter()
     cleaned_query = query.strip()
     if not cleaned_query:
         raise HTTPException(status_code=400, detail="Query cannot be empty")
@@ -17,7 +20,11 @@ async def query_documents(query: str = Query(..., min_length=1)):
         print(item.get("source"), item.get("page"), item.get("text", "")[:150])
 
     if not results:
-        return {"answer": "I don't know.", "sources": []}
+        return {
+            "answer": "I don't know.",
+            "answer_time_seconds": round(perf_counter() - start_time, 3),
+            "sources": [],
+        }
 
     answer = generate_answer(cleaned_query, results)
     if not answer or not answer.strip():
@@ -25,6 +32,7 @@ async def query_documents(query: str = Query(..., min_length=1)):
 
     return {
         "answer": answer.strip(),
+        "answer_time_seconds": round(perf_counter() - start_time, 3),
         "sources": [
             {
                 "source": item.get("source", "Unknown"),

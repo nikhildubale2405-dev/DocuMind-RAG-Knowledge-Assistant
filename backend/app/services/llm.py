@@ -27,7 +27,7 @@ def build_context(chunks: list[dict]) -> str:
 
 def _get_api_key() -> str | None:
     # Hugging Face Secrets / local env fallback
-    api_key = os.getenv("GROQAPIKEY") or os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GROQAPIKEY") or settings.groq_api_key or os.getenv("GROQ_API_KEY")
     if api_key:
         api_key = api_key.strip()
     return api_key or None
