@@ -29,6 +29,7 @@
 
             <button id="uploadBtn" type="button">Upload</button>
             <p class="message" id="uploadMessage"></p>
+            <p class="timing-text" id="uploadTiming"></p>
           </section>
 
           <section class="section-block">
@@ -48,7 +49,10 @@
 
       <section class="results">
         <article class="answer-card">
-          <h2>Answer</h2>
+          <div class="card-heading">
+            <h2>Answer</h2>
+            <span class="timing-badge" id="answerTiming"></span>
+          </div>
           <p id="answerText" class="answer-text">Upload a PDF and ask a question to begin.</p>
         </article>
 

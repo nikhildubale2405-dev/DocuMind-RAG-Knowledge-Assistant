@@ -1,3 +1,5 @@
+from time import perf_counter
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.services.parser import chunk_pages, extract_pdf_pages
@@ -9,6 +11,8 @@ router = APIRouter(prefix="/upload", tags=["upload"])
 
 @router.post("/")
 async def upload_pdf(file: UploadFile = File(...)):
+    start_time = perf_counter()
+
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
@@ -26,4 +30,9 @@ async def upload_pdf(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="No extractable text found in PDF")
 
     vector_store.add_chunks(chunks)
-    return {"message": "File uploaded successfully"}
+    upload_time_seconds = perf_counter() - start_time
+
+    return {
+        "message": "File uploaded successfully",
+        "upload_time_seconds": round(upload_time_seconds, 3),
+    }

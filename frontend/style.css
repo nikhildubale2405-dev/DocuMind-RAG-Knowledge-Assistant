@@ -178,6 +178,43 @@ button:disabled {
   color: var(--danger);
 }
 
+.timing-text,
+.timing-badge {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.timing-text {
+  min-height: 20px;
+  margin: 6px 0 0;
+}
+
+.card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.card-heading h2 {
+  margin-bottom: 0;
+}
+
+.timing-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.timing-badge:empty {
+  display: none;
+}
+
 .spinner {
   width: 30px;
   height: 30px;
