@@ -4,10 +4,12 @@ const pdfFile = document.getElementById("pdfFile");
 const fileName = document.getElementById("fileName");
 const uploadBtn = document.getElementById("uploadBtn");
 const uploadMessage = document.getElementById("uploadMessage");
+const uploadTiming = document.getElementById("uploadTiming");
 const queryInput = document.getElementById("queryInput");
 const askBtn = document.getElementById("askBtn");
 const spinner = document.getElementById("spinner");
 const answerText = document.getElementById("answerText");
+const answerTiming = document.getElementById("answerTiming");
 const sourcesList = document.getElementById("sourcesList");
 const apiStatus = document.getElementById("apiStatus");
 
@@ -21,6 +23,18 @@ function setBusy(isBusy, action) {
   askBtn.disabled = isBusy;
   spinner.classList.toggle("hidden", !isBusy || action !== "query");
   apiStatus.textContent = isBusy ? "Processing" : "Ready";
+}
+
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds)) {
+    return "";
+  }
+
+  if (seconds < 1) {
+    return `${Math.round(seconds * 1000)} ms`;
+  }
+
+  return `${seconds.toFixed(2)} s`;
 }
 
 function renderSources(sources) {
@@ -39,7 +53,7 @@ function renderSources(sources) {
 
     const title = document.createElement("div");
     title.className = "source-title";
-    title.textContent = `${source.source} · Page ${source.page}`;
+    title.textContent = `${source.source} - Page ${source.page}`;
 
     const text = document.createElement("p");
     text.className = "source-text";
@@ -55,6 +69,7 @@ function renderSources(sources) {
 pdfFile.addEventListener("change", () => {
   fileName.textContent = pdfFile.files[0]?.name || "Choose a PDF file";
   setMessage(uploadMessage, "");
+  uploadTiming.textContent = "";
 });
 
 uploadBtn.addEventListener("click", async () => {
@@ -62,6 +77,7 @@ uploadBtn.addEventListener("click", async () => {
 
   if (!file) {
     setMessage(uploadMessage, "Please choose a PDF first.", "error");
+    uploadTiming.textContent = "";
     return;
   }
 
@@ -70,6 +86,8 @@ uploadBtn.addEventListener("click", async () => {
 
   setBusy(true, "upload");
   setMessage(uploadMessage, "Uploading and indexing document...");
+  uploadTiming.textContent = "";
+  const uploadStartedAt = performance.now();
 
   try {
     const response = await fetch(`${BASE_URL}/upload/`, {
@@ -84,8 +102,12 @@ uploadBtn.addEventListener("click", async () => {
     }
 
     setMessage(uploadMessage, data.message || "File uploaded successfully", "success");
+    const clientUploadSeconds = (performance.now() - uploadStartedAt) / 1000;
+    const uploadSeconds = Number(data.upload_time_seconds) || clientUploadSeconds;
+    uploadTiming.textContent = `Upload time: ${formatDuration(uploadSeconds)}`;
   } catch (error) {
     setMessage(uploadMessage, error.message || "Upload request failed", "error");
+    uploadTiming.textContent = "";
   } finally {
     setBusy(false);
   }
@@ -96,13 +118,16 @@ askBtn.addEventListener("click", async () => {
 
   if (!query) {
     answerText.textContent = "Enter a question first.";
+    answerTiming.textContent = "";
     renderSources([]);
     return;
   }
 
   setBusy(true, "query");
   answerText.textContent = "Thinking...";
+  answerTiming.textContent = "";
   renderSources([]);
+  const answerStartedAt = performance.now();
 
   try {
     const url = new URL(`${window.location.origin}/query/`);
@@ -116,9 +141,13 @@ askBtn.addEventListener("click", async () => {
     }
 
     answerText.textContent = data.answer || "No answer received";
+    const clientAnswerSeconds = (performance.now() - answerStartedAt) / 1000;
+    const answerSeconds = Number(data.answer_time_seconds) || clientAnswerSeconds;
+    answerTiming.textContent = `Answered in ${formatDuration(answerSeconds)}`;
     renderSources(data.sources);
   } catch (error) {
     answerText.textContent = error.message || "Request failed";
+    answerTiming.textContent = "";
     renderSources([]);
   } finally {
     setBusy(false);
