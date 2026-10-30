@@ -13,6 +13,8 @@ const answerTiming = document.getElementById("answerTiming");
 const sourcesList = document.getElementById("sourcesList");
 const apiStatus = document.getElementById("apiStatus");
 
+let currentStoredChunks = 0;
+
 function setMessage(element, message, type = "") {
   element.textContent = message;
   element.className = `message ${type}`.trim();
@@ -22,7 +24,11 @@ function setBusy(isBusy, action) {
   uploadBtn.disabled = isBusy;
   askBtn.disabled = isBusy;
   spinner.classList.toggle("hidden", !isBusy || action !== "query");
-  apiStatus.textContent = isBusy ? "Processing" : "Ready";
+  if (!isBusy) {
+    apiStatus.textContent = currentStoredChunks > 0 ? `${currentStoredChunks} Chunks Loaded` : "Ready";
+  } else {
+    apiStatus.textContent = action === "upload" ? "Indexing" : "Thinking";
+  }
 }
 
 function formatDuration(seconds) {
@@ -53,7 +59,8 @@ function renderSources(sources) {
 
     const title = document.createElement("div");
     title.className = "source-title";
-    title.textContent = `${source.source} - Page ${source.page}`;
+    const scoreInfo = source.score ? ` · Score: ${source.score}` : "";
+    title.textContent = `${source.source} — Page ${source.page}${scoreInfo}`;
 
     const text = document.createElement("p");
     text.className = "source-text";
@@ -65,6 +72,27 @@ function renderSources(sources) {
 
   sourcesList.appendChild(fragment);
 }
+
+// Check initial index status on page load
+async function checkInitialStatus() {
+  try {
+    const res = await fetch(`${BASE_URL}/upload/status`);
+    if (res.ok) {
+      const data = await res.json();
+      currentStoredChunks = data.total_chunks || 0;
+      if (currentStoredChunks > 0) {
+        apiStatus.textContent = `${currentStoredChunks} Chunks Loaded`;
+        answerText.textContent = `${currentStoredChunks} document chunks loaded from persistent storage. Ask any question below.`;
+      } else {
+        apiStatus.textContent = "Ready";
+      }
+    }
+  } catch {
+    apiStatus.textContent = "Ready";
+  }
+}
+
+checkInitialStatus();
 
 pdfFile.addEventListener("change", () => {
   fileName.textContent = pdfFile.files[0]?.name || "Choose a PDF file";
@@ -85,7 +113,7 @@ uploadBtn.addEventListener("click", async () => {
   formData.append("file", file);
 
   setBusy(true, "upload");
-  setMessage(uploadMessage, "Uploading and indexing document...");
+  setMessage(uploadMessage, "Uploading, extracting, and indexing document...");
   uploadTiming.textContent = "";
   const uploadStartedAt = performance.now();
 
@@ -101,10 +129,12 @@ uploadBtn.addEventListener("click", async () => {
       throw new Error(data.detail || "Upload failed");
     }
 
+    currentStoredChunks = data.total_chunks_stored || currentStoredChunks;
     setMessage(uploadMessage, data.message || "File uploaded successfully", "success");
     const clientUploadSeconds = (performance.now() - uploadStartedAt) / 1000;
     const uploadSeconds = Number(data.upload_time_seconds) || clientUploadSeconds;
     uploadTiming.textContent = `Upload time: ${formatDuration(uploadSeconds)}`;
+    answerText.textContent = `Indexed ${data.chunks_indexed || "new"} chunks. You can now ask questions about this document.`;
   } catch (error) {
     setMessage(uploadMessage, error.message || "Upload request failed", "error");
     uploadTiming.textContent = "";
@@ -117,23 +147,33 @@ askBtn.addEventListener("click", async () => {
   const query = queryInput.value.trim();
 
   if (!query) {
-    answerText.textContent = "Enter a question first.";
+    answerText.textContent = "Please enter a question first.";
     answerTiming.textContent = "";
     renderSources([]);
     return;
   }
 
   setBusy(true, "query");
-  answerText.textContent = "Thinking...";
+  answerText.textContent = "Retrieving context and generating answer...";
   answerTiming.textContent = "";
   renderSources([]);
   const answerStartedAt = performance.now();
 
   try {
-    const url = new URL(`${window.location.origin}/query/`);
-    url.searchParams.set("query", query);
+    // Send standard POST request with JSON payload for production robustness
+    const response = await fetch(`${BASE_URL}/query/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: query,
+        top_k: 3,
+        use_hybrid: true,
+        use_langchain: false,
+      }),
+    });
 
-    const response = await fetch(url, { method: "POST" });
     const data = await response.json();
 
     if (!response.ok) {

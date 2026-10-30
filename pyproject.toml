@@ -1,0 +1,10 @@
+[tool.pyright]
+include = ["backend", "frontend"]
+extraPaths = ["backend"]
+reportMissingImports = true
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "backend"
+ignore_missing_imports = true
+
