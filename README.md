@@ -2,6 +2,7 @@
 title: enterprise-rag-knowledge-assistant
 sdk: docker
 app_port: 7860
+<<<<<<< HEAD
 ---
 
 # DocuMind — Enterprise RAG Knowledge Assistant
@@ -510,3 +511,6 @@ Direct endpoint executing question answering strictly via the LangChain LCEL pip
 
 ## License
 MIT License. Free for commercial and private enterprise use.
+=======
+---
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46

@@ -13,8 +13,11 @@ const answerTiming = document.getElementById("answerTiming");
 const sourcesList = document.getElementById("sourcesList");
 const apiStatus = document.getElementById("apiStatus");
 
+<<<<<<< HEAD
 let currentStoredChunks = 0;
 
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 function setMessage(element, message, type = "") {
   element.textContent = message;
   element.className = `message ${type}`.trim();
@@ -24,11 +27,15 @@ function setBusy(isBusy, action) {
   uploadBtn.disabled = isBusy;
   askBtn.disabled = isBusy;
   spinner.classList.toggle("hidden", !isBusy || action !== "query");
+<<<<<<< HEAD
   if (!isBusy) {
     apiStatus.textContent = currentStoredChunks > 0 ? `${currentStoredChunks} Chunks Loaded` : "Ready";
   } else {
     apiStatus.textContent = action === "upload" ? "Indexing" : "Thinking";
   }
+=======
+  apiStatus.textContent = isBusy ? "Processing" : "Ready";
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 }
 
 function formatDuration(seconds) {
@@ -59,8 +66,12 @@ function renderSources(sources) {
 
     const title = document.createElement("div");
     title.className = "source-title";
+<<<<<<< HEAD
     const scoreInfo = source.score ? ` · Score: ${source.score}` : "";
     title.textContent = `${source.source} — Page ${source.page}${scoreInfo}`;
+=======
+    title.textContent = `${source.source} - Page ${source.page}`;
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
     const text = document.createElement("p");
     text.className = "source-text";
@@ -73,6 +84,7 @@ function renderSources(sources) {
   sourcesList.appendChild(fragment);
 }
 
+<<<<<<< HEAD
 // Check initial index status on page load
 async function checkInitialStatus() {
   try {
@@ -94,6 +106,8 @@ async function checkInitialStatus() {
 
 checkInitialStatus();
 
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 pdfFile.addEventListener("change", () => {
   fileName.textContent = pdfFile.files[0]?.name || "Choose a PDF file";
   setMessage(uploadMessage, "");
@@ -113,7 +127,11 @@ uploadBtn.addEventListener("click", async () => {
   formData.append("file", file);
 
   setBusy(true, "upload");
+<<<<<<< HEAD
   setMessage(uploadMessage, "Uploading, extracting, and indexing document...");
+=======
+  setMessage(uploadMessage, "Uploading and indexing document...");
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
   uploadTiming.textContent = "";
   const uploadStartedAt = performance.now();
 
@@ -129,12 +147,18 @@ uploadBtn.addEventListener("click", async () => {
       throw new Error(data.detail || "Upload failed");
     }
 
+<<<<<<< HEAD
     currentStoredChunks = data.total_chunks_stored || currentStoredChunks;
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     setMessage(uploadMessage, data.message || "File uploaded successfully", "success");
     const clientUploadSeconds = (performance.now() - uploadStartedAt) / 1000;
     const uploadSeconds = Number(data.upload_time_seconds) || clientUploadSeconds;
     uploadTiming.textContent = `Upload time: ${formatDuration(uploadSeconds)}`;
+<<<<<<< HEAD
     answerText.textContent = `Indexed ${data.chunks_indexed || "new"} chunks. You can now ask questions about this document.`;
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
   } catch (error) {
     setMessage(uploadMessage, error.message || "Upload request failed", "error");
     uploadTiming.textContent = "";
@@ -147,19 +171,28 @@ askBtn.addEventListener("click", async () => {
   const query = queryInput.value.trim();
 
   if (!query) {
+<<<<<<< HEAD
     answerText.textContent = "Please enter a question first.";
+=======
+    answerText.textContent = "Enter a question first.";
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     answerTiming.textContent = "";
     renderSources([]);
     return;
   }
 
   setBusy(true, "query");
+<<<<<<< HEAD
   answerText.textContent = "Retrieving context and generating answer...";
+=======
+  answerText.textContent = "Thinking...";
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
   answerTiming.textContent = "";
   renderSources([]);
   const answerStartedAt = performance.now();
 
   try {
+<<<<<<< HEAD
     // Send standard POST request with JSON payload for production robustness
     const response = await fetch(`${BASE_URL}/query/`, {
       method: "POST",
@@ -174,6 +207,12 @@ askBtn.addEventListener("click", async () => {
       }),
     });
 
+=======
+    const url = new URL(`${window.location.origin}/query/`);
+    url.searchParams.set("query", query);
+
+    const response = await fetch(url, { method: "POST" });
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     const data = await response.json();
 
     if (!response.ok) {

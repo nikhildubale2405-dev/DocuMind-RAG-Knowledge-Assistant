@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 import logging
 import os
@@ -19,6 +20,15 @@ except ImportError:
         from ..utils.config import settings  # type: ignore
 
 logger = logging.getLogger(__name__)
+=======
+from functools import lru_cache
+import os
+
+from groq import Groq
+
+from app.utils.config import settings
+
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
 SYSTEM_PROMPT = """You are DocuMind, a careful document Q&A assistant.
 Answer ONLY using the provided context.
@@ -26,6 +36,7 @@ If the answer is not clearly present in the context, reply exactly: I don't know
 Keep the answer concise.
 Do not use outside knowledge."""
 
+<<<<<<< HEAD
 PREFERRED_GROQ_MODELS = [
     "llama-3.3-70b-versatile",
     "llama-3.2-3b-preview",
@@ -36,6 +47,10 @@ PREFERRED_GROQ_MODELS = [
 
 
 def build_context(chunks: list[dict[str, Any]]) -> str:
+=======
+
+def build_context(chunks: list[dict]) -> str:
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     context_parts = []
     for index, chunk in enumerate(chunks, start=1):
         source = chunk.get("source", "Unknown")
@@ -47,6 +62,7 @@ def build_context(chunks: list[dict[str, Any]]) -> str:
     return "\n\n".join(context_parts)
 
 
+<<<<<<< HEAD
 def _get_groq_api_key() -> Optional[str]:
     candidates = [
         os.getenv("GROQAPIKEY"),
@@ -90,10 +106,27 @@ def _get_groq_client() -> Any:
             "Groq API key is missing or set to placeholder. "
             "Please add a valid Groq API key (starts with 'gsk_') to backend/.env (GROQ_API_KEY=gsk_...) "
             "or set GROQ_API_KEY in your environment/Hugging Face Secrets."
+=======
+def _get_api_key() -> str | None:
+    # Hugging Face Secrets / local env fallback
+    api_key = os.getenv("GROQAPIKEY") or settings.groq_api_key or os.getenv("GROQ_API_KEY")
+    if api_key:
+        api_key = api_key.strip()
+    return api_key or None
+
+
+@lru_cache(maxsize=1)
+def _get_client() -> Groq:
+    api_key = _get_api_key()
+    if not api_key:
+        raise ValueError(
+            "Groq API key is not configured. Add the Hugging Face secret as GROQAPIKEY or GROQ_API_KEY."
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
         )
     return Groq(api_key=api_key)
 
 
+<<<<<<< HEAD
 def _discover_groq_fallback_model(client: Any) -> Optional[str]:
     """Finds an available chat completion model from the user's Groq account."""
     try:
@@ -188,6 +221,11 @@ def generate_answer(query: str, chunks: list[dict[str, Any]]) -> str:
     """Generates a grounded answer from context using Groq or OpenAI."""
     if not chunks:
         return "I don't know."
+=======
+def generate_answer(query: str, chunks: list[dict]) -> str:
+    if not chunks:
+        return "I don't know"
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
     context = build_context(chunks)
 
@@ -199,6 +237,7 @@ Question:
 
 Answer:"""
 
+<<<<<<< HEAD
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": prompt},
@@ -253,3 +292,21 @@ Answer:"""
             )
 
         return f"LLM request failed: {exc}"
+=======
+    try:
+        client = _get_client()
+        response = client.chat.completions.create(
+            model=getattr(settings, "groq_model", "llama3-8b-8192"),
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0,
+            max_tokens=300,
+        )
+    except Exception as exc:
+        return f"LLM request failed: {exc}"
+
+    answer = response.choices[0].message.content if response.choices else ""
+    return answer.strip() if answer else "No answer received"
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46

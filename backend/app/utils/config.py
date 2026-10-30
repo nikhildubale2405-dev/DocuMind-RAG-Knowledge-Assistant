@@ -8,6 +8,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
+<<<<<<< HEAD
     # LLM Provider Configuration ("groq" or "openai")
     llm_provider: str = "groq"
     
@@ -33,6 +34,10 @@ class Settings(BaseSettings):
     
     # Storage Configuration
     persistence_dir: str = str(BACKEND_DIR / "data" / "vector_store")
+=======
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.1-8b-instant"
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
@@ -47,4 +52,7 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+<<<<<<< HEAD
 
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46

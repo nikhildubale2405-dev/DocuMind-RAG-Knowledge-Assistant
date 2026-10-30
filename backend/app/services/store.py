@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 import logging
 import math
@@ -28,10 +29,20 @@ except ImportError:
         from ..utils.config import settings  # type: ignore
 
 logger = logging.getLogger(__name__)
+=======
+from threading import Lock
+from typing import Any
+
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
 
+<<<<<<< HEAD
 class BM25Okapi:
     """Lightweight in-memory BM25 Okapi implementation for keyword/lexical search."""
 
@@ -164,6 +175,17 @@ class VectorStore:
             raise RuntimeError(
                 "sentence-transformers is required for embeddings. Please run: pip install sentence-transformers"
             )
+=======
+class VectorStore:
+    def __init__(self) -> None:
+        self.model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        self.dimension = self.model.get_sentence_embedding_dimension()
+        self.index = faiss.IndexFlatIP(self.dimension)
+        self.metadata: list[dict[str, Any]] = []
+        self.lock = Lock()
+
+    def _embed(self, texts: list[str]) -> np.ndarray:
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
         embeddings = self.model.encode(
             texts,
             convert_to_numpy=True,
@@ -172,6 +194,7 @@ class VectorStore:
         )
         return embeddings.astype("float32")
 
+<<<<<<< HEAD
     def save_to_disk(self) -> None:
         """Persists the FAISS index and metadata to disk with error handling."""
         if self.index is None or faiss is None:
@@ -248,6 +271,8 @@ class VectorStore:
                 logger.warning(f"Error removing persistent index files: {exc}")
         logger.info("Cleared vector store memory and persistent files.")
 
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     def add_chunks(self, chunks: list[dict[str, Any]]) -> None:
         if not chunks:
             return
@@ -256,6 +281,7 @@ class VectorStore:
         embeddings = self._embed(texts)
 
         with self.lock:
+<<<<<<< HEAD
             start_offset = len(self.metadata)
             if self.index is not None:
                 self.index.add(embeddings)
@@ -397,6 +423,29 @@ class VectorStore:
                 item["score"] = float(rrf_score)
                 item["search_type"] = "hybrid_rrf (dense_faiss + sparse_bm25)"
                 results.append(item)
+=======
+            self.index.add(embeddings)
+            self.metadata.extend(chunks)
+
+    def search_chunks(self, query: str, top_k: int = 3) -> list[dict[str, Any]]:
+        if self.index.ntotal == 0:
+            return []
+
+        query_embedding = self._embed([query])
+        k = min(top_k, self.index.ntotal)
+
+        with self.lock:
+            scores, indices = self.index.search(query_embedding, k)
+
+        results: list[dict[str, Any]] = []
+        for score, index in zip(scores[0], indices[0], strict=False):
+            if index < 0:
+                continue
+
+            item = dict(self.metadata[int(index)])
+            item["score"] = float(score)
+            results.append(item)
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
         return results
 

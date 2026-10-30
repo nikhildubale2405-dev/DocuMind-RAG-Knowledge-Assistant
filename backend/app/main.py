@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+<<<<<<< HEAD
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -47,6 +51,26 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
+=======
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.routes import query, upload
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+FRONTEND_DIR = BASE_DIR / "frontend"
+
+app = FastAPI(
+    title="DocuMind API",
+    description="AI-powered document Q&A grounded in uploaded PDF content.",
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -54,6 +78,7 @@ app.add_middleware(
 app.include_router(upload.router)
 app.include_router(query.router)
 
+<<<<<<< HEAD
 # Mount static frontend assets if directory exists
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
@@ -82,3 +107,11 @@ def health_check():
         "service": "DocuMind API",
         "version": "1.0.0",
     }
+=======
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+
+@app.get("/")
+def root():
+    return FileResponse(FRONTEND_DIR / "index.html")
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46

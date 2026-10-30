@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from typing import Any
 
 try:
@@ -14,6 +15,13 @@ def retrieve(
 ) -> list[dict[str, Any]]:
     """Retrieves top_k relevant document chunks using hybrid search (FAISS + BM25) or pure dense search."""
     results = vector_store.search_chunks(query, top_k=top_k, use_hybrid=use_hybrid)
+=======
+from app.services.store import vector_store
+
+
+def retrieve(query: str, top_k: int = 3) -> list[dict]:
+    results = vector_store.search_chunks(query, top_k=top_k)
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
     cleaned_results = []
     for item in results:
@@ -30,4 +38,8 @@ def retrieve(
 
         cleaned_results.append(item)
 
+<<<<<<< HEAD
     return cleaned_results
+=======
+    return cleaned_results
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46

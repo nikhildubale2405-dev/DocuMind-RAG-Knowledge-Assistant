@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from pathlib import Path
 from time import perf_counter
 
@@ -63,11 +64,44 @@ async def upload_pdf(file: UploadFile = File(...)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No extractable text found in PDF. Scanned or image-only PDFs require OCR.",
         )
+=======
+from time import perf_counter
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+
+from app.services.parser import chunk_pages, extract_pdf_pages
+from app.services.store import vector_store
+
+
+router = APIRouter(prefix="/upload", tags=["upload"])
+
+
+@router.post("/")
+async def upload_pdf(file: UploadFile = File(...)):
+    start_time = perf_counter()
+
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported")
+
+    pdf_bytes = await file.read()
+    if not pdf_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+    try:
+        pages = extract_pdf_pages(pdf_bytes)
+        chunks = chunk_pages(pages, source=file.filename)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Could not parse PDF: {exc}") from exc
+
+    if not chunks:
+        raise HTTPException(status_code=400, detail="No extractable text found in PDF")
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
 
     vector_store.add_chunks(chunks)
     upload_time_seconds = perf_counter() - start_time
 
     return {
+<<<<<<< HEAD
         "message": f"Successfully uploaded and indexed '{safe_filename}'",
         "filename": safe_filename,
         "pages_extracted": len(pages),
@@ -96,3 +130,8 @@ def clear_store():
     """Resets the vector store in-memory and on-disk."""
     vector_store.clear()
     return {"message": "Vector store memory and persistent files cleared successfully"}
+=======
+        "message": "File uploaded successfully",
+        "upload_time_seconds": round(upload_time_seconds, 3),
+    }
+>>>>>>> cc18f597ab75b4d6f338b20c1e80de7658dc5d46
